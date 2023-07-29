@@ -118,8 +118,32 @@ cleanup:
 
 smStatus_t Se05x_API_SessionClose(pSe05xSession_t session_ctx)
 {
+    smStatus_t retStatus = SM_NOT_OK;
+    tlvHeader_t hdr      = {{kSE05x_CLA, kSE05x_INS_MGMT, kSE05x_P1_DEFAULT, kSE05x_P2_SESSION_CLOSE}};
+    size_t cmdbufLen     = 0;
+    uint8_t *pRspbuf      = NULL;
+    size_t rspbufLen     = 0;
+
+    ENSURE_OR_GO_CLEANUP(session_ctx != NULL);
+
+    /* If AES session open, close first */
+    if (session_ctx->has_session) {
+
+        pRspbuf    = &session_ctx->apdu_buffer[0];
+        rspbufLen = sizeof(session_ctx->apdu_buffer);
+
+        retStatus = DoAPDUTxRx(session_ctx, &hdr, session_ctx->apdu_buffer, cmdbufLen, pRspbuf, &rspbufLen, 0);
+
+        if (retStatus != SM_OK) {
+            SMLOG_E("Failed to close session.");
+        }
+    }
+
     SMLOG_D("APDU - Se05x_API_SessionClose [] \n");
-    return smComT1oI2C_Close(session_ctx->conn_context, 0);
+    retStatus = smComT1oI2C_Close(session_ctx->conn_context, 0);
+
+cleanup:
+    return retStatus;
 }
 
 smStatus_t Se05x_API_WriteECKey(pSe05xSession_t session_ctx,
