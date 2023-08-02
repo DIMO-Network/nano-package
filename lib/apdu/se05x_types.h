@@ -142,6 +142,7 @@ typedef struct
      */
     uint16_t OEFID;
 
+
     /* Vars used for authenticated session,
      * currently only AES authenticated session are implemented. */
     bool use_auth_session;
@@ -162,6 +163,7 @@ typedef Se05xPolicy_t *pSe05xPolicy_t;
 
 // Doesn't include the length byte.
 #define SE05X_DEFAULT_POLICY_LEN           (8u)
+#define SE05X_UNIQUE_ID_LEN                (18u)   ///< when reading reserved id RESERVED_ID_UNIQUE_ID
 
 /**
  * @brief One policy for secure object.  Can can have multiple policies for
