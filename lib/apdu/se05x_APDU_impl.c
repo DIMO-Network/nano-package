@@ -996,6 +996,55 @@ cleanup:
     return retStatus;
 }
 
+smStatus_t Se05x_API_GetFreeMemory(pSe05xSession_t session_ctx, SE05x_MemoryType_t memoryType, uint16_t *pfreeMem)
+{
+    smStatus_t retStatus = SM_NOT_OK;
+    tlvHeader_t hdr      = {{kSE05x_CLA, kSE05x_INS_MGMT, kSE05x_P1_DEFAULT, kSE05x_P2_MEMORY}};
+    size_t cmdbufLen                       = 0;
+    uint8_t *pCmdbuf                       = session_ctx->apdu_buffer;
+    int tlvRet                             = 0;
+    uint8_t *pRspbuf                       = session_ctx->apdu_buffer;
+    size_t rspbufLen                       = sizeof(session_ctx->apdu_buffer);
+#if VERBOSE_APDU_LOGS
+    NEWLINE();
+    nLog("APDU", NX_LEVEL_DEBUG, "GetFreeMemory []");
+#endif /* VERBOSE_APDU_LOGS */
+
+    tlvRet = TLVSET_U8("memoryType", &pCmdbuf, &cmdbufLen, kSE05x_TAG_1, memoryType);
+    if (0 != tlvRet) {
+        goto cleanup;
+    }
+    retStatus = DoAPDUTxRx(session_ctx, &hdr, session_ctx->apdu_buffer, cmdbufLen, pRspbuf, &rspbufLen, 1);
+    if (retStatus == SM_OK) {
+        retStatus       = SM_NOT_OK;
+        size_t rspIndex = 0;
+        tlvRet          = tlvGet_u16(pRspbuf, &rspIndex, rspbufLen, kSE05x_TAG_1, pfreeMem); /* - */
+        if (0 != tlvRet) {
+            goto cleanup;
+        }
+        if ((rspIndex + 2) == rspbufLen) {
+            retStatus = (smStatus_t)((pRspbuf[rspIndex] << 8) | (pRspbuf[rspIndex + 1]));
+        }
+    }
+
+    cleanup:
+    return retStatus;
+}
+
+smStatus_t Se05x_API_DeleteAll(pSe05xSession_t session_ctx)
+{
+    smStatus_t retStatus = SM_NOT_OK;
+    tlvHeader_t hdr      = {{kSE05x_CLA, kSE05x_INS_MGMT, kSE05x_P1_DEFAULT, kSE05x_P2_DELETE_ALL}};
+    size_t cmdbufLen = 0;
+#if VERBOSE_APDU_LOGS
+    NEWLINE();
+    nLog("APDU", NX_LEVEL_DEBUG, "DeleteAll []");
+#endif /* VERBOSE_APDU_LOGS */
+
+    retStatus = DoAPDUTx(session_ctx, &hdr, session_ctx->apdu_buffer, cmdbufLen, 0);
+
+    return retStatus;
+}
 
 
 #if 1

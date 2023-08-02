@@ -256,10 +256,12 @@ typedef enum
     kSE05x_P2_SESSION_CREATE  = 0x1B,
     kSE05x_P2_SESSION_CLOSE   = 0x1C,
     kSE05x_P2_VERSION         = 0x20,
+    kSE05x_P2_MEMORY          = 0x22,
     kSE05x_P2_LIST            = 0x25,
     kSE05x_P2_TYPE            = 0x26,
     kSE05x_P2_EXIST           = 0x27,
     kSE05x_P2_DELETE_OBJECT   = 0x28,
+    kSE05x_P2_DELETE_ALL      = 0x2A,
     kSE05x_P2_SESSION_UserID  = 0x2C,
     kSE05x_P2_DH              = 0x0F,
     kSE05x_P2_ENCRYPT_ONESHOT = 0x37,
@@ -548,4 +550,17 @@ typedef enum
 /** @copydoc SE05x_SecObjTyp_t */
 typedef SE05x_SecObjTyp_t SE05x_SecureObjectType_t;
 
-#endif //#ifndef SE05X_TYPES_H_INC
+/** Data for available memory */
+typedef enum
+{
+    /** Invalid */
+    kSE05x_MemoryType_NA = 0,
+    /** Persistent memory */
+    kSE05x_MemoryType_PERSISTENT = 0x01,
+    /** Transient memory, clear on reset */
+    kSE05x_MemoryType_TRANSIENT_RESET = 0x02,
+    /** Transient memory, clear on deselect */
+    kSE05x_MemoryType_TRANSIENT_DESELECT = 0x03,
+} SE05x_MemoryType_t;
+
+#endif

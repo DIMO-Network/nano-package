@@ -1163,6 +1163,127 @@ smStatus_t Se05x_API_ReadType(pSe05xSession_t session_ctx,
 smStatus_t Se05x_API_ReadSize(pSe05xSession_t session_ctx, uint32_t objectID, uint16_t *psize);
 
 
+/** Se05x_API_GetFreeMemory
+ *
+ * Gets the amount of free memory. MemoryType indicates the type of memory.
+ *
+ * The result indicates the amount of free memory. Note that behavior of the
+ * function might not be fully linear and can have a granularity of 16 bytes
+ * where the applet will typically report the "worst case" amount. For example,
+ * when allocating 2 bytes a time, the first report will show 16 bytes being
+ * allocated, which remains the same for the next 7 allocations of 2 bytes.
+ *
+ *
+ * # Command to Applet
+ *
+ * @rst
+ * +-------+------------+---------------------------------+
+ * | Field | Value      | Description                     |
+ * +=======+============+=================================+
+ * | CLA   | 0x80       |                                 |
+ * +-------+------------+---------------------------------+
+ * | INS   | INS_MGMT   | See :cpp:type:`SE05x_INS_t`     |
+ * +-------+------------+---------------------------------+
+ * | P1    | P1_DEFAULT | See :cpp:type:`SE05x_P1_t`      |
+ * +-------+------------+---------------------------------+
+ * | P2    | P2_MEMORY  | See :cpp:type:`SE05x_P2_t`      |
+ * +-------+------------+---------------------------------+
+ * | Lc    | #(Payload) |                                 |
+ * +-------+------------+---------------------------------+
+ * |       | TLV[TAG_1] | :cpp:type:`SE05x_MemTyp_t`      |
+ * +-------+------------+---------------------------------+
+ * | Le    | 0x04       | Expecting TLV with 2-byte data. |
+ * +-------+------------+---------------------------------+
+ * @endrst
+ *
+ * # R-APDU Body
+ *
+ * @rst
+ * +------------+----------------------------------------------+
+ * | Value      | Description                                  |
+ * +============+==============================================+
+ * | TLV[TAG_1] | 2 bytes indicating the amount of free memory |
+ * |            | of the requested memory type.  0x7FFF as     |
+ * |            | response means at least 32768 bytes are      |
+ * |            | available.                                   |
+ * +------------+----------------------------------------------+
+ * @endrst
+ *
+ * # R-APDU Trailer
+ *
+ * @rst
+ * +-------------+--------------------------------+
+ * | SW          | Description                    |
+ * +=============+================================+
+ * | SW_NO_ERROR | Data is returned successfully. |
+ * +-------------+--------------------------------+
+ * @endrst
+ *
+ *
+ *
+ * @param[in]  session_ctx  The session context
+ * @param[in]  memoryType   The memory type
+ * @param      pfreeMem     The pfree memory
+ *
+ * @return     The sm status.
+ */
+smStatus_t Se05x_API_GetFreeMemory(pSe05xSession_t session_ctx, SE05x_MemoryType_t memoryType, uint16_t *pfreeMem);
+
+/** Se05x_API_DeleteAll
+ *
+ * Delete all Secure Objects, delete all curves and Crypto Objects. Secure
+ * Objects that are trust provisioned by NXP are not deleted (i.e., all objects
+ * that have Origin set to ORIGIN_PROVISIONED, including the objects with
+ * reserved object identifiers listed in Object attributes).
+ *
+ * This command can only be used from sessions that are authenticated using the
+ * credential with index RESERVED_ID_FACTORY_RESET.
+ *
+ * _Important_ : if a secure messaging session is up & running (e.g., AESKey or
+ * ECKey session) and the command is sent within this session, the response of
+ * the DeleteAll command will not be wrapped (i.e., not encrypted and no R-MAC),
+ * so this will also break down the secure channel protocol (as the session is
+ * closed by the DeleteAll command itself).
+ *
+ * # Command to Applet
+ *
+ * @rst
+ * +-------+---------------+-----------------------------+
+ * | Field | Value         | Description                 |
+ * +=======+===============+=============================+
+ * | CLA   | 0x80          |                             |
+ * +-------+---------------+-----------------------------+
+ * | INS   | INS_MGMT      | See :cpp:type:`SE05x_INS_t` |
+ * +-------+---------------+-----------------------------+
+ * | P1    | P1_DEFAULT    | See :cpp:type:`SE05x_P1_t`  |
+ * +-------+---------------+-----------------------------+
+ * | P2    | P2_DELETE_ALL | See :cpp:type:`SE05x_P2_t`  |
+ * +-------+---------------+-----------------------------+
+ * | Lc    | 0x00          |                             |
+ * +-------+---------------+-----------------------------+
+ * @endrst
+ *
+ * # R-APDU Body
+ *
+ * NA
+ *
+ * # R-APDU Trailer
+ *
+ * @rst
+ * +-------------+--------------------------------+
+ * | SW          | Description                    |
+ * +=============+================================+
+ * | SW_NO_ERROR | Data is returned successfully. |
+ * +-------------+--------------------------------+
+ * @endrst
+ *
+ *
+ *
+ * @param[in] session_ctx Session Context [0:kSE05x_pSession]
+ */
+smStatus_t Se05x_API_DeleteAll(pSe05xSession_t session_ctx);
+
+
 smStatus_t Se05x_API_ReadECCurveList(pSe05xSession_t session_ctx, uint8_t *data, size_t *pdataLen);
 
 smStatus_t Se05x_API_CreateECCurve(pSe05xSession_t session_ctx, SE05x_ECCurve_t curveID);
