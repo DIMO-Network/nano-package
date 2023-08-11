@@ -82,9 +82,11 @@ smStatus_t ex_se05x_wrap_session_command(Se05xSession_t *pSession_ctx, uint8_t *
 
     i = sizeof(tlvHeader_t);
 
-    // Placeholder for now, this is the length of the session id and
-    // the original command, not including the length byt itself
-    cmdbuf[i++]  = 0;
+    // Set to zero for now, this is the length of the session id and
+    // the original command, not including the length itself.
+    // This is set later in the function.
+    cmdbuf[i++]  = 0;  // dummy length for now, set later in the function.
+
     cmdbuf[i++] = kSE05x_TAG_SESSION_ID;
     cmdbuf[i++] = (uint8_t)sizeof(pSession_ctx->session_id);
     memcpy(&cmdbuf[i], pSession_ctx->session_id, sizeof(pSession_ctx->session_id));

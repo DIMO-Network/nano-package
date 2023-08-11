@@ -63,7 +63,7 @@ smStatus_t Se05x_API_SessionOpen(pSe05xSession_t session_ctx)
 
     if (session_ctx->skip_applet_select == 1) {
         if(!session_ctx->has_encrypted_session) {
-            return ret;
+            return SM_NOT_OK;
         }
         appSsdName    = &ssdName[0];
         appSsdNameLen = sizeof(ssdName);
